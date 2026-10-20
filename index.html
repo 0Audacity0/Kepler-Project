@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kepler Project</title>
+    <style>
+        :root {
+            --bg-color: #f4edd2;
+            --board-bg: #fffbf0;
+            --text-color: #2b261f;
+            --ink-blue: #1b365d;
+            --accent-red: #8b0000;
+            --border-color: #8c7853;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            font-family: 'Georgia', serif;
+            color: var(--text-color);
+            overflow-y: hidden;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        /* Large Horizontal Poster Container */
+        .poster-wrapper {
+            flex: 1;
+            overflow-x: auto;
+            overflow-y: hidden;
+            display: flex;
+            align-items: center;
+            padding: 20px 40px;
+            scroll-behavior: smooth;
+        }
+
+        /* Hide default scrollbar to use our custom slider instead */
+        .poster-wrapper::-webkit-scrollbar {
+            display: none;
+        }
+        .poster-wrapper {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .poster-board {
+            display: flex;
+            flex-direction: row;
+            background-color: var(--board-bg);
+            border: 12px double var(--border-color);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+            padding: 40px;
+            height: 75vh;
+            min-height: 550px;
+            gap: 50px;
+            box-sizing: border-box;
+        }
+
+        /* Individual Panels going left-to-right */
+        .panel {
+            width: 450px;
+            min-width: 450px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            border-right: 2px dashed rgba(140, 120, 83, 0.4);
+            padding-right: 50px;
+            box-sizing: border-box;
+            overflow-y: auto;
+        }
+
+        .panel:last-child {
+            border-right: none;
+            padding-right: 0;
+            width: 400px;
+            min-width: 400px;
+        }
+
+        /* Panel Typography & Styling */
+        h1 {
+            color: var(--accent-red);
+            font-size: 2.2rem;
+            margin-top: 0;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 3px double var(--border-color);
+            padding-bottom: 10px;
+            line-height: 1.2;
+        }
+
+        h2 {
+            color: var(--ink-blue);
+            font-size: 1.4rem;
+            margin-top: 0;
+            margin-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        p {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        .subtitle {
+            font-style: italic;
+            color: #555;
+            margin-bottom: 25px;
+            font-size: 1rem;
+        }
+
+        /* Diagram Containers */
+        .diagram-container {
+            background: #fff;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 15px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.02);
+            height: 200px;
+            min-height: 200px;
+        }
+
+        svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Bottom Controls / Slider Row */
+        .controls-row {
+            height: 80px;
+            background-color: #2b261f;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 10px 40px;
+            box-sizing: border-box;
+            color: #fff;
+            border-top: 4px solid var(--border-color);
+        }
+
+        .slider-label {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 6px;
+            color: var(--bg-color);
+        }
+
+        .slider-container {
+            width: 60%;
+            max-width: 800px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 8px;
+            background: #555;
+            border-radius: 4px;
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--bg-color);
+            border: 2px solid var(--border-color);
+            cursor: pointer;
+            transition: transform 0.1s ease;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--bg-color);
+            border: 2px solid var(--border-color);
+            cursor: pointer;
+            transition: transform 0.1s ease;
+        }
+
+        input[type="range"]::-moz-range-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        .scroll-btn {
+            background: none;
+            border: 1px solid var(--bg-color);
+            color: var(--bg-color);
+            padding: 2px 10px;
+            cursor: pointer;
+            font-family: monospace;
+            font-size: 1rem;
+            border-radius: 4px;
+        }
+
+        .scroll-btn:hover {
+            background: var(--bg-color);
+            color: #2b261f;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Main Horizontal Poster Layout -->
+    <div class="poster-wrapper" id="posterWrapper">
+        <div class="poster-board">
+            
+            <!-- Title & Intro Panel -->
+            <div class="panel" style="width: 500px; min-width: 500px;">
+                <h1>I Don't Know What to Name This</h1>
+                <div class="subtitle">This project is a little buggy so don't question it (and its supposed to look fancy)'</div>
+                <h2>I. Introduction</h2>
+                <p>
+                    The turn of the seventeenth century was a period of profound transition in natural philosophy, where ancient geometric theories met rigorous baseline observation. Born in the Holy Roman Empire, <strong>Johannes Kepler</strong> (1571–1630) operated firmly under a classical and Christian worldview. He believed the universe was a mathematical masterpiece designed by God according to perfect archetypes.
+                </p>
+                <p>
+                    Working as an assistant to the meticulous Danish astronomer <strong>Tycho Brahe</strong>, Kepler inherited a massive treasure trove of observational data, particularly tracking the anomalous orbit of Mars. Armed with mathematical genius, Kepler spent years calculating solutions by hand, ultimately shattering ancient scientific dogmas to deduce three beautiful laws.
+                </p>
+            </div>
+
+            <!-- First Law Panel -->
+            <div class="panel">
+                <h2>II. First Law: Ellipses</h2>
+                <div class="diagram-container">
+                    <!-- SVG Diagram for First Law -->
+                    <svg viewBox="0 0 400 200">
+                        <!-- Orbit Ellipse -->
+                        <ellipse cx="200" cy="100" rx="140" ry="80" fill="none" stroke="#1b365d" stroke-width="2.5" />
+                        <!-- Major Axis Line -->
+                        <line x1="60" y1="100" x2="340" y2="100" stroke="#ccc" stroke-width="1" stroke-dasharray="4" />
+                        <!-- Foci Points -->
+                        <!-- Focus 1: Sun -->
+                        <circle cx="130" cy="100" r="14" fill="#ffcc00" stroke="#cc9900" stroke-width="1.5" />
+                        <text x="130" y="80" font-family="Georgia" font-size="11" text-anchor="middle" font-weight="bold">Sun (Focus 1)</text>
+                        <!-- Focus 2: Empty -->
+                        <circle cx="270" cy="100" r="4" fill="#8c7853" />
+                        <text x="270" y="85" font-family="Georgia" font-size="11" text-anchor="middle">Focus 2</text>
+                        <!-- Planet -->
+                        <circle cx="78" cy="55" r="7" fill="#8b0000" />
+                        <text x="65" y="45" font-family="Georgia" font-size="11" font-weight="bold">Planet</text>
+                        <!-- Target lines from foci to planet -->
+                        <line x1="130" y1="100" x2="78" y2="55" stroke="#8c7853" stroke-width="1" stroke-dasharray="2" />
+                        <line x1="270" y1="100" x2="78" y2="55" stroke="#8c7853" stroke-width="1" stroke-dasharray="2" />
+                        <!-- Labels for distances -->
+                        <text x="200" y="190" font-family="Georgia" font-size="12" text-anchor="middle" font-style="italic">Orbit is an Ellipse with the Sun at one focus</text>
+                    </svg>
+                </div>
+                <p>
+                    For millennia, astronomers assumed celestial bodies moved in perfect circles. Kepler's First Law corrected this, demonstrating that <strong>the orbit of a planet is an ellipse with the Sun located at one of the two foci</strong>. 
+                </p>
+                <p>
+                    An ellipse is defined by two internal geometric anchors called foci. While the Sun sits stationary at one focus, the other remains an empty mathematical coordinates point in space. This means a planet's distance from the Sun dynamically shifts throughout its year.
+                </p>
+            </div>
+
+            <!-- Second Law Panel -->
+            <div class="panel">
+                <h2>III. Second Law: Equal Areas</h2>
+                <div class="diagram-container">
+                    <!-- SVG Diagram for Second Law -->
+                    <svg viewBox="0 0 400 200">
+                        <!-- Orbit Ellipse -->
+                        <ellipse cx="200" cy="100" rx="140" ry="80" fill="none" stroke="#1b365d" stroke-width="2.5" />
+                        <!-- Sun at Focus -->
+                        <circle cx="120" cy="100" r="14" fill="#ffcc00" stroke="#cc9900" stroke-width="1.5" />
+                        <!-- Sector A (Perihelion - Close, fast, wide) -->
+                        <path d="M 120 100 L 62 90 A 140 80 0 0 1 73 145 Z" fill="rgba(139, 0, 0, 0.25)" stroke="#8b0000" stroke-width="1" />
+                        <text x="45" y="125" font-family="Georgia" font-size="11" font-weight="bold" fill="#8b0000">Area A</text>
+                        <!-- Sector B (Aphelion - Far, slow, narrow) -->
+                        <path d="M 120 100 L 322 80 A 140 80 0 0 1 332 115 Z" fill="rgba(139, 0, 0, 0.25)" stroke="#8b0000" stroke-width="1" />
+                        <text x="345" y="102" font-family="Georgia" font-size="11" font-weight="bold" fill="#8b0000">Area B</text>
+                        <!-- Direction arrow or velocity labels -->
+                        <text x="50" y="70" font-family="Georgia" font-size="10" fill="#333">Faster speed</text>
+                        <text x="280" y="60" font-family="Georgia" font-size="10" fill="#333">Slower speed</text>
+                        <text x="200" y="185" font-family="Georgia" font-size="12" text-anchor="middle" font-style="italic">Area A = Area B (Swept in equal time)</text>
+                    </svg>
+                </div>
+                <p>
+                    Kepler’s Second Law describes orbital velocity, proving that <strong>a line segment joining a planet and the Sun sweeps out equal areas during equal intervals of time</strong>.
+                </p>
+                <p>
+                    Planets do not travel at uniform speeds. As a planet gets closer to the Sun's massive gravitational pull, it accelerates (perihelion). When moving away, it slows down (aphelion). Kepler proved that if you measure an orbital interval—say, 30 days—at any point in the journey, the geometric area of the resulting wedge is identical.
+                </p>
+            </div>
+
+            <!-- Third Law Panel -->
+            <div class="panel">
+                <h2>IV. Third Law: Harmonic Law</h2>
+                <div class="diagram-container">
+                    <!-- SVG Diagram for Third Law -->
+                    <svg viewBox="0 0 400 200">
+                        <!-- Sun Center -->
+                        <circle cx="200" cy="100" r="16" fill="#ffcc00" stroke="#cc9900" stroke-width="1.5" />
+                        <!-- Orbit 1 -->
+                        <ellipse cx="200" cy="100" rx="70" ry="45" fill="none" stroke="#ccc" stroke-width="1.5" />
+                        <circle cx="250" cy="131" r="5" fill="#1b365d" />
+                        <line x1="200" y1="100" x2="250" y2="131" stroke="#1b365d" stroke-dasharray="2" />
+                        <text x="215" y="130" font-family="Georgia" font-size="10" fill="#1b365d">R₁</text>
+                        <!-- Orbit 2 -->
+                        <ellipse cx="200" cy="100" rx="150" ry="85" fill="none" stroke="#999" stroke-width="1.5" />
+                        <circle cx="90" cy="45" r="7" fill="#8b0000" />
+                        <line x1="200" y1="100" x2="90" y2="45" stroke="#8b0000" stroke-dasharray="2" />
+                        <text x="135" y="65" font-family="Georgia" font-size="10" fill="#8b0000">R₂</text>
+                        <!-- Equation Label -->
+                        <rect x="140" y="135" width="120" height="30" fill="#fffbf0" stroke="#8c7853" rx="4" />
+                        <text x="200" y="154" font-family="Georgia" font-size="14" text-anchor="middle" font-weight="bold">T² ∝ R³</text>
+                        <text x="200" y="185" font-family="Georgia" font-size="12" text-anchor="middle" font-style="italic">Ratio of year squared to distance cubed is constant</text>
+                    </svg>
+                </div>
+                <p>
+                    Published a decade later, Kepler’s Third Law reveals the unified math across our entire solar system: <strong>the square of a planet's orbital period (T) is proportional to the cube of its average distance (R) from the Sun</strong>.
+                </p>
+                <p>
+                    Unlike the first two laws tracking individual paths, this harmonic law uncovers a shared baseline constant. It mathematically proves that planets located far out from the central solar body move at systematically slower speeds along vastly larger tracks than inner planets.
+                </p>
+            </div>
+
+            <!-- Conclusion Panel -->
+            <div class="panel">
+                <h2>V. Historical Impact</h2>
+                <p>
+                    Kepler’s laws fundamentally shifted human history by elegantly uniting pure celestial geometry with natural physics. His three principles provided the critical foundation for <strong>Sir Isaac Newton</strong>, who synthesized Kepler's geometric motions to formulate his universal law of gravitation. Without Kepler's mathematical descriptions of <em>how</em> things moved, Newton could not have proved <em>why</em> they moved.
+                </p>
+                <p>
+                    Today, this classical foundation remains vital. Aerospace engineers use these identical laws to plot orbits for satellites, map deep-space paths for robotic explorers, and execute navigation parameters for travel. Kepler's divine geometry continues to order our exploration of the cosmos.
+                </p>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Interactive Slider Row at the Bottom -->
+    <div class="controls-row">
+        <div class="slider-label">Use Slider NOW!</div>
+        <div class="slider-container">
+            <button class="scroll-btn" onclick="stepScroll(-100)">&lt;</button>
+            <input type="range" id="posterSlider" min="0" max="100" value="0">
+            <button class="scroll-btn" onclick="stepScroll(100)">&gt;</button>
+        </div>
+    </div>
+
+    <script>
+        const wrapper = document.getElementById('posterWrapper');
+        const slider = document.getElementById('posterSlider');
+
+        // Update slider max dynamically based on content width
+        function updateSliderRange() {
+            const maxScroll = wrapper.scrollWidth - wrapper.clientWidth;
+            slider.max = maxScroll > 0 ? maxScroll : 0;
+        }
+
+        // Initialize and listen to window resize
+        window.addEventListener('load', updateSliderRange);
+        window.addEventListener('resize', updateSliderRange);
+        
+        // Setup observer to watch for dynamic sizing changes
+        const resizeObserver = new ResizeObserver(() => updateSliderRange());
+        resizeObserver.observe(wrapper);
+
+        // Move container when dragging slider
+        slider.addEventListener('input', (e) => {
+            wrapper.scrollLeft = e.target.value;
+        });
+
+        // Sync slider thumb position if user uses trackpad or arrow keys to scroll
+        wrapper.addEventListener('scroll', () => {
+            slider.value = wrapper.scrollLeft;
+        });
+
+        // Small step buttons
+        function stepScroll(amount) {
+            wrapper.scrollLeft += amount;
+        }
+    </script>
+</body>
+</html>
